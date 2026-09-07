@@ -1,9 +1,13 @@
 spring:
   application:
     name: sun-moon-java-platform-delivery
-  data:
-    mongodb:
-      uri: mongodb://localhost:27017/delivery
+  datasource:
+    url: jdbc:postgresql://localhost:5432/delivery_service
+    username: sunmoon
+    password: sunmoon_dev_pw
+  sql:
+    init:
+      mode: always
 
 management:
   endpoints:

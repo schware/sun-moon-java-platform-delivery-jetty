@@ -19,17 +19,22 @@ repositories {
 }
 
 // Delivery service — sun-moon-java-platform family.
-// MongoDB-backed: deliveries map naturally to documents, and later
-// courier-assignment logic can lean on MongoDB's geospatial indexes
-// ($near) without a storage migration. See docs/adr/0001 in the parent
-// sun-moon-java-platform repo for the per-service database reasoning.
+// Originally planned as MongoDB (deliveries map naturally to documents,
+// and courier-assignment could later lean on geospatial $near queries).
+// Switched to Postgres + JSONB instead: MongoDB 5.0+ requires AVX, and
+// this homelab box's CPU (Core i5 M 480, 2010) doesn't have it — not
+// fixable by config, the server binary won't run at all. JSONB gives the
+// same "whole object as one blob" access pattern on hardware that
+// actually works here. See docs/adr in the parent sun-moon-java-platform
+// repo for the full story.
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web") {
         exclude(group = "org.springframework.boot", module = "spring-boot-starter-tomcat")
     }
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    runtimeOnly("org.postgresql:postgresql")
 
     implementation("io.micrometer:micrometer-registry-prometheus")
 

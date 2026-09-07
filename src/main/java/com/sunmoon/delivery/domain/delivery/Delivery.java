@@ -1,31 +1,32 @@
 package com.sunmoon.delivery.domain.delivery;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.Instant;
+import java.util.UUID;
 
-@Document("deliveries")
 public class Delivery {
 
-    @Id
-    private String id;
-
-    @Indexed
-    private String orderId;
-
+    private final String id;
+    private final String orderId;
     private DeliveryStatus status;
-    private Instant createdAt;
+    private final Instant createdAt;
 
-    protected Delivery() {
-        // for Spring Data MongoDB
+    @JsonCreator
+    public Delivery(
+            @JsonProperty("id") String id,
+            @JsonProperty("orderId") String orderId,
+            @JsonProperty("status") DeliveryStatus status,
+            @JsonProperty("createdAt") Instant createdAt) {
+        this.id = id;
+        this.orderId = orderId;
+        this.status = status;
+        this.createdAt = createdAt;
     }
 
     public Delivery(String orderId) {
-        this.orderId = orderId;
-        this.status = DeliveryStatus.ASSIGNED;
-        this.createdAt = Instant.now();
+        this(UUID.randomUUID().toString(), orderId, DeliveryStatus.ASSIGNED, Instant.now());
     }
 
     public String getId() {

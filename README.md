@@ -11,12 +11,19 @@ as `-order` (see that repo's `docs/adr/0004` and `0005` for the
 Spring/Jetty/WAR deployment reasoning and a classpath bug worth knowing
 about before touching this repo's dependencies).
 
-## Why MongoDB
+## Why Postgres + JSONB, not MongoDB
 
-Deliveries map naturally onto documents, and courier-assignment logic can
-later lean on MongoDB's geospatial indexes (`$near`) without a storage
-migration. See the parent repo's ADR for the full per-service database
-reasoning.
+Originally planned as MongoDB (deliveries map naturally onto documents,
+and courier-assignment could later lean on geospatial `$near` queries).
+**Switched to Postgres + JSONB**: MongoDB 5.0+ requires AVX, and this
+homelab box's CPU (Core i5 M 480, 2010) doesn't have it — `mongod` won't
+even start (`SIGILL`), and it turned out MongoDB no longer ships server
+packages for the last pre-AVX version (4.4, EOL since Feb 2024) either.
+JSONB gives the same "whole object as one blob, `order_id` indexed for
+lookups" access pattern a document store would, on hardware that actually
+runs it — see `JdbcDeliveryRepository` and `schema.sql`. See the parent
+repo's ADR for the full per-service database reasoning and this
+hardware-driven pivot.
 
 ## API
 
@@ -25,8 +32,10 @@ reasoning.
 
 ## Build & run
 
-Requires JDK 21+, and MongoDB reachable at `localhost:27017` (see
-`src/main/resources/application.yml`).
+Requires JDK 21+, and PostgreSQL reachable at `localhost:5432` with a
+`delivery_service` database and `sunmoon` role (see
+`src/main/resources/application.yml`). `schema.sql` runs automatically on
+startup (`spring.sql.init.mode: always`).
 
 ```
 ./gradlew test
