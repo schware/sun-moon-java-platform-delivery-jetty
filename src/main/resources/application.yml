@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: sun-moon-java-platform-delivery
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/delivery
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus,info
+  endpoint:
+    health:
+      show-details: always
