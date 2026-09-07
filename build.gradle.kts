@@ -48,6 +48,15 @@ dependencies {
         exclude(group = "org.slf4j", module = "slf4j-api")
     }
 
+    // sun-moon-java-platform-order compiles fine without this because
+    // spring-boot-starter-websocket happens to pull jakarta.servlet-api
+    // in transitively as a normal compile dependency. Without a websocket
+    // starter, DeliveryApplication extending SpringBootServletInitializer
+    // fails to compile (jakarta.servlet.ServletException unresolvable) —
+    // providedCompile (from the `war` plugin) fixes it directly instead
+    // of relying on that accident.
+    providedCompile("jakarta.servlet:jakarta.servlet-api")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
